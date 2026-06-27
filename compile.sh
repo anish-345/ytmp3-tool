@@ -23,24 +23,37 @@ echo "📦 Packaging components..."
 cp ytmp3 "$BIN_DIR/ytmp3"
 chmod +x "$BIN_DIR/ytmp3"
 
+# Copy dependencies
+echo "📦 Copying dependencies (ffmpeg, yt-dlp, deno)..."
+cp dependencies/ffmpeg "$BIN_DIR/"
+cp dependencies/yt-dlp "$BIN_DIR/"
+cp dependencies/deno "$BIN_DIR/"
+chmod +x "$BIN_DIR"/*
+
 # Copy additional tools
 cp ~/.termux/bin/ytmp3-auto "$BIN_DIR/" 2>/dev/null || true
 cp ~/.termux/bin/ytmp3-widget "$BIN_DIR/" 2>/dev/null || true
 
-# Create launcher script
+# Create launcher script with dependencies
 cat > "$BIN_DIR/run.sh" << 'EOF'
 #!/bin/bash
 # Launcher script for Flutter integration
+# Includes all dependencies
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Set environment
+# Add to PATH so dependencies can be found
 export PATH="$SCRIPT_DIR:$PATH"
+
+# Set environment
 export HOME="/data/data/com.termux/files/home"
 
+# Create temp bin with deps
+export TMPDIR="$SCRIPT_DIR"
+
 # Run the command
-"$SCRIPT_DIR/ytmp3" "$@"
+exec "$SCRIPT_DIR/ytmp3" "$@"
 EOF
 
 chmod +x "$BIN_DIR/run.sh"

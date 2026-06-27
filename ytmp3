@@ -2,8 +2,28 @@
 
 # YouTube to MP3 Converter Tool
 # Properly encodes to actual MP3 format
+# Uses bundled dependencies (ffmpeg, yt-dlp, deno)
 
 OUTPUT_DIR="$HOME/storage/downloads"
+
+# Find dependencies in order of preference:
+# 1. Bundled with app (./ffmpeg, ./yt-dlp, ./deno)
+# 2. System installed (Termux or other)
+
+# Set paths for bundled dependencies
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Use bundled dependencies if they exist
+if [ -f "$SCRIPT_DIR/ffmpeg" ]; then
+    FFMPEG="$SCRIPT_DIR/ffmpeg"
+    YT_DLP="$SCRIPT_DIR/yt-dlp"
+    DENO="$SCRIPT_DIR/deno"
+else
+    # Fall back to system
+    FFMPEG="ffmpeg"
+    YT_DLP="yt-dlp"
+    DENO="deno"
+fi
 
 # Create downloads directory if it doesn't exist
 mkdir -p "$OUTPUT_DIR"
@@ -24,11 +44,14 @@ echo "📥 Downloading and converting..."
 echo "Please wait..."
 
 # Use yt-dlp with ffmpeg to create actual MP3 file
-yt-dlp -x \
+# Pass the bundled executables
+"$YT_DLP" -x \
+       --ffmpeg-location "$FFMPEG" \
        --audio-format mp3 \
        --audio-quality 0 \
        --output "$OUTPUT_DIR/%(title)s.%(ext)s" \
        --js-runtimes deno \
+       --deno-location "$DENO" \
        "$URL"
 
 if [ $? -eq 0 ]; then
