@@ -1,0 +1,17 @@
+name: ytmp3_flutter
+description: Flutter plugin for YouTube to MP3 conversion
+version: 1.0.0
+
+environment:
+  sdk: '>=2.12.0 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  path_provider: ^2.0.0
+
+android:
+  namespace: com.example.ytmp3_flutter
+
+# For pub.dev publishing
+publish_to: pub.dev

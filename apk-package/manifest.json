@@ -1,0 +1,8 @@
+{
+  "name": "YouTube to MP3",
+  "version": "1.0.0",
+  "description": "Convert YouTube videos to MP3",
+  "architecture": "aarch64",
+  "permissions": ["INTERNET", "WRITE_EXTERNAL_STORAGE"],
+  "entrypoint": "assets/run.sh"
+}
