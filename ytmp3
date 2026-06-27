@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# YouTube to MP3 Converter Tool
+# Properly encodes to actual MP3 format
+
+OUTPUT_DIR="$HOME/storage/downloads"
+
+# Create downloads directory if it doesn't exist
+mkdir -p "$OUTPUT_DIR"
+
+echo "🎵 YouTube to MP3 Converter"
+echo "=========================="
+
+# Check if URL is provided
+if [ -z "$1" ]; then
+    echo "Usage: ytmp3 <youtube-url>"
+    echo "Example: ytmp3 https://youtu.be/xxxxx"
+    exit 1
+fi
+
+URL="$1"
+
+echo "📥 Downloading and converting..."
+echo "Please wait..."
+
+# Use yt-dlp with ffmpeg to create actual MP3 file
+yt-dlp -x \
+       --audio-format mp3 \
+       --audio-quality 0 \
+       --output "$OUTPUT_DIR/%(title)s.%(ext)s" \
+       --js-runtimes deno \
+       "$URL"
+
+if [ $? -eq 0 ]; then
+    echo ""
+    echo "✅ Success! File saved to: $OUTPUT_DIR"
+    echo ""
+    # List the downloaded file
+    echo "📁 Downloaded files:"
+    ls -lh "$OUTPUT_DIR"/*.mp3 2>/dev/null | tail -1
+else
+    echo ""
+    echo "❌ Error occurred during conversion"
+fi
