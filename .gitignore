@@ -1,0 +1,13 @@
+# Termux outputs
+*.pyc
+__pycache__/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
