@@ -1,10 +1,14 @@
-# 🎵 YouTube to MP3 - Termux Tool
+# 🎵 YouTube to MP3 - Standalone Tool
 
-A powerful YouTube to MP3 converter for Termux that **actually encodes** to real MP3 format (not just renaming files).
+A powerful YouTube to MP3 converter that **actually encodes** to real MP3 format (not just renaming files).
+
+**Standalone package** - includes all dependencies (ffmpeg, yt-dlp, deno)!
 
 ## ✨ Features
 
-- ✅ **Real MP3 encoding** using ffmpeg (not just file renaming)
+- ✅ **Standalone package** - includes all dependencies (ffmpeg, yt-dlp, deno)
+- ✅ **Real MP3 encoding** using ffmpeg
+- ✅ Works on Android without Termux
 - ✅ **Highest quality** (VBR 0)
 - ✅ **Android intent sharing** support
 - ✅ **Auto-detects shared URLs** from other apps
@@ -12,13 +16,19 @@ A powerful YouTube to MP3 converter for Termux that **actually encodes** to real
 
 ## 🚀 Quick Install
 
+### Option 1: Standalone (Recommended)
 ```bash
 # Clone the repo
 git clone https://github.com/yourusername/ytmp3-tool.git
 cd ytmp3-tool
 
-# Install
-./install.sh
+# No dependencies needed - everything included!
+./ytmp3 https://youtu.be/xxxxx
+```
+
+### Option 2: Termux Integration
+```bash
+./install.sh  # Installs to Termux
 ```
 
 ## 📱 Usage
@@ -35,7 +45,11 @@ ytmp3-auto         Convert from clipboard
 ytmp3-widget       Show recent MP3s
 ```
 
-## 🔧 Requirements
+## 🔧 Requirements (Standalone)
+
+**No requirements!** Everything is included in the package.
+
+## 🔧 Requirements (Termux Mode)
 
 - Termux app
 - `yt-dlp` (auto-installed)
