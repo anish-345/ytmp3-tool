@@ -1,0 +1,63 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        architecture: [arm64, x64]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+    
+    - name: Build for Android
+      run: |
+        echo "Building for ${{ matrix.architecture }}"
+        chmod +x compile.sh
+        ./compile.sh
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: binaries-${{ matrix.architecture }}
+        path: |
+          binaries/
+          dependencies/
+    
+    - name: Create GitHub Release (tags only)
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          binaries/android-aarch64/*
+        draft: false
+        prerelease: false
+        name: Release ${{ github.ref_name }}
+        body: |
+          ## 🎵 YouTube to MP3 Tool ${{ github.ref_name }}
+          
+          ### What's Included
+          - Precompiled binaries for Android ARM64
+          - Flutter integration support
+          - Native Android integration
+          - No Python/termux required
+          
+          ### Quick Start
+          ```bash
+          cd binaries/android-aarch64/
+          ./ytmp3 https://youtube.com/watch?v=VIDEO_ID
+          ```
+          
+          ### Integration Guide
+          See [FLUTTER_ANDROID_INTEGRATION.md](FLUTTER_ANDROID_INTEGRATION.md)

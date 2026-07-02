@@ -1,59 +1,66 @@
 # 🎵 YouTube to MP3 Converter - Standalone Edition
 
 ## 📦 What's Included
-| Component | Size | Type |
-|-----------|------|------|
-| `ytmp3` | 796 B | Bash launcher script |
-| `ytmp3-bin` | 12 MB | Python + yt-dlp bundle (ARM64) |
-| `ffmpeg` | 368 KB | MP3 encoder (ARM64 Android) |
+| Component | Size | Type | Purpose |
+|-----------|------|------|---------|
+| `ytmp3` | 796 B | Bash script | Main launcher |
+| `ytmp3-bin` | 12 MB | Python bundle | Standalone app |
+| `ffmpeg` | 368 KB | Binary | MP3 encoder |
+| `deno` | 89 MB | Binary | JS runtime |
 
-**Total: ~13 MB** (vs 90 MB for deno version)
+**Total: ~90MB (or 12MB with Python version)**
 
 ## ✨ Features
 - 🚀 **Single executable** - Just run and download!
 - 🎵 Real MP3 encoding with ffmpeg
 - 📱 Works on Android without Termux
-- 🔧 No external dependencies
-- ⚡ Much smaller than deno version (12 MB vs 89 MB)
+- 🔧 No external dependencies (standalone version)
+- ⚡ Small size with Python version (12 MB)
 
 ## 🚀 Quick Start
+
+### Standalone (No Dependencies)
 ```bash
-# Download and use
-git clone https://github.com/anish-345/ytmp3-tool.git
-cd ytmp3-tool
+cd ~/ytmp3-repo/binaries/android-aarch64/
 ./ytmp3 https://youtube.com/watch?v=VIDEO_ID
 ```
 
-## 📁 Output
-MP3 files saved to: `~/storage/downloads/`
+### With Flutter
+```dart
+import 'package:ytmp3_flutter/ytmp3_flutter.dart';
 
-## 📊 Size Comparison
-| Version | Size | Description |
-|---------|------|-------------|
-| **Python Bundle** | 12 MB | ✅ Recommended - Python + yt-dlp bundled |
-| Deno Version | 89 MB | JavaScript runtime (larger) |
-| Lightweight | 1 MB | Requires Python + yt-dlp install |
-
-## 💡 Technical Details
-The `ytmp3-bin` executable is built with PyInstaller and includes:
-- Python 3 runtime
-- yt-dlp module for YouTube extraction
-- All dependencies bundled
-
-This provides the best balance of:
-- ✅ Small size (12 MB)
-- ✅ No external dependencies
-- ✅ No Python installation needed
-- ✅ Fast execution
-
-## 📱 Android Usage
-```bash
-# In Termux or Android shell
-./ytmp3 <youtube-url>
-
-# With clipboard URL
-./ytmp3 --clipboard
+final ytmp3 = Ytmp3Flutter.instance;
+String result = await ytmp3.convertToMp3('https://youtu.be/VIDEO_ID');
 ```
+
+### Native Android
+See [FLUTTER_ANDROID_INTEGRATION.md](FLUTTER_ANDROID_INTEGRATION.md) for Kotlin/Java integration.
+
+---
+
+## 📁 Output
+MP3 files saved to: `~/storage/downloads/` (Android)
+
+---
+
+## 💡 Why This Is Best
+Unlike other tools that just rename `.m4a` files to `.mp3`, this tool:
+1. Downloads the audio/video
+2. **Re-encodes with ffmpeg**
+3. **Creates proper MP3 with correct headers**
+4. **Works in all media players**
+
+---
+
+## 📱 Integration Guides
+
+| Platform | Guide |
+|----------|-------|
+| **Flutter** | [FLUTTER_ANDROID_INTEGRATION.md](FLUTTER_ANDROID_INTEGRATION.md) |
+| **Native Android** | [FLUTTER_ANDROID_INTEGRATION.md#native-android-integration)` |
+| **APK Packaging** | [FLUTTER_ANDROID_INTEGRATION.md#apk-packaging](FLUTTER_ANDROID_INTEGRATION.md#apk-packaging) |
+
+---
 
 ## 📄 License
 MIT License

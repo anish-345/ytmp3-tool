@@ -1,63 +1,64 @@
-# Flutter Integration Guide
+# 📱 Flutter & Native Android Integration Guide
 
-## Overview
-This directory contains files for integrating YouTube to MP3 functionality into a Flutter app.
+This guide explains how to use the precompiled ytmp3 binaries in your Flutter and Android apps.
 
-## Files
+## 📋 Quick Start
 
-### 1. Method Channel (Android)
-`ytmp3_method_channel.dart` - Dart code for Android platform channel
+### For Flutter Apps
 
-### 2. Android Integration
-`android/ytmp3_runner.kt` - Kotlin code to run the binary
+1. **Add dependency** to `pubspec.yaml`:
+```yaml
+dependencies:
+  ytmp3_flutter:
+    path: ./flutter-integration
+```
 
-### 3. Assets
-`assets/` - Pre-compiled binaries for different architectures
+2. **Copy assets**:
+```bash
+mkdir -p android/app/src/main/assets/
+cp ../binaries/android-aarch64/* android/app/src/main/assets/
+```
 
-## Usage
+3. **Update AndroidManifest.xml**:
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+```
 
-### In your Flutter app:
-
+4. **Use in Dart**:
 ```dart
-import 'package:ytmp3_flutter/ytmp3_method_channel.dart';
+import 'package:ytmp3_flutter/ytmp3_flutter.dart';
 
-// Convert YouTube URL to MP3
-final result = await Ytmp3MethodChannel().convertYoutubeToMp3(
-  'https://youtu.be/xxxxx'
-);
-print('MP3 saved: $result');
+final ytmp3 = Ytmp3Flutter.instance;
+String result = await ytmp3.convertToMp3('https://youtu.be/VIDEO_ID');
 ```
 
-### In Android code:
+### For Native Android
 
-```kotlin
-// MainActivity.kt
-methodChannel.setMethodCallHandler { call, result ->
-  when (call.method) {
-    "convertToMp3" -> {
-      val url = call.argument<String>("url")
-      // Run ytmp3 binary
-      val output = runYtmp3(url)
-      result.success(output)
-    }
-  }
-}
-```
+See [FLUTTER_ANDROID_INTEGRATION.md](../FLUTTER_ANDROID_INTEGRATION.md) for detailed instructions.
 
-## Architecture Support
+---
 
-- `android-arm64` ✓ (most devices)
-- `android-arm` ✓ (older devices)
-- `android-x64` ✓ (emulators)
+## 📦 Included Binaries
 
-## Permissions Required
+| Binary | Size | Purpose |
+|--------|------|---------|
+| `ytmp3` | 796 B | Main launcher script |
+| `ffmpeg` | 368 KB | MP3 encoder |
+| `deno` | 89 MB | JavaScript runtime |
+| `yt-dlp` | 183 B | Python wrapper |
 
-- INTERNET
-- WRITE_EXTERNAL_STORAGE
-- MANAGE_EXTERNAL_STORAGE (for Android 10+)
+---
 
-## Notes
+## 🎯 Architecture Support
 
-- Requires Termux to be installed, OR
-- Bundle all dependencies in your APK
-- Test on real devices for best compatibility
+- ✅ **arm64-v8a** - Modern Android phones (recommended)
+- ✅ **armeabi-v7a** - Older phones (coming soon)
+- ✅ **x86_64** - Android emulators
+
+---
+
+## 📄 License
+
+MIT License - Free for personal and commercial use.
