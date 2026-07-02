@@ -1,67 +1,86 @@
 #!/bin/bash
+#
+# 🎵 YouTube to MP3 Converter - ULTIMATE Standalone Edition
+#
 
-# YouTube to MP3 Converter Tool
-# Properly encodes to actual MP3 format
-# Uses bundled dependencies (ffmpeg, yt-dlp, deno)
+set -e
 
-OUTPUT_DIR="$HOME/storage/downloads"
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
 
-# Find dependencies in order of preference:
-# 1. Bundled with app (./ffmpeg, ./yt-dlp, ./deno)
-# 2. System installed (Termux or other)
+# Find binaries in multiple locations
+find_binary() {
+    local name=$1
+    for dir in "$SCRIPT_DIR" "$SCRIPT_DIR/binaries" "$HOME/.local/share/ytmp3" "/opt/ytmp3"; do
+        if [ -f "$dir/$name" ]; then
+            echo "$dir/$name"
+            return
+        fi
+    done
+    echo "$name"  # Fall back to PATH
+}
 
-# Set paths for bundled dependencies
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# Use bundled dependencies if they exist
-if [ -f "$SCRIPT_DIR/ffmpeg" ]; then
-    FFMPEG="$SCRIPT_DIR/ffmpeg"
-    YT_DLP="$SCRIPT_DIR/yt-dlp"
-    DENO="$SCRIPT_DIR/deno"
-else
-    # Fall back to system
-    FFMPEG="ffmpeg"
-    YT_DLP="yt-dlp"
-    DENO="deno"
-fi
-
-# Create downloads directory if it doesn't exist
+OUTPUT_DIR="$HOME/storage/downloads"
 mkdir -p "$OUTPUT_DIR"
 
-echo "🎵 YouTube to MP3 Converter"
-echo "=========================="
+FFMPEG=$(find_binary ffmpeg)
+DENO=$(find_binary deno)
 
-# Check if URL is provided
-if [ -z "$1" ]; then
-    echo "Usage: ytmp3 <youtube-url>"
-    echo "Example: ytmp3 https://youtu.be/xxxxx"
+echo -e "${BLUE}🎵 YouTube to MP3 Converter - Standalone Edition${NC}"
+echo -e "${BLUE}================================================${NC}"
+
+# Parse arguments
+URL=""
+OUTPUT_NAME="audio"
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -u=*|--url=*) URL="${arg#*=}"; shift ;;
+        -u|--url) URL="$2"; shift 2 ;;
+        -o=*|--output=*) OUTPUT_NAME="${arg#*=}"; shift ;;
+        -o|--output) OUTPUT_NAME="$2"; shift 2 ;;
+        --clipboard)
+            URL=$(termux-clipboard-get 2>/dev/null | tr -d '\n')
+            shift ;;
+        -h|--help)
+            echo "Usage: $0 [OPTIONS] [URL]"
+            echo "  -u, --url     YouTube URL"
+            echo "  -o, --output  Output filename"
+            echo "  --clipboard   Use clipboard URL"
+            exit 0 ;;
+        *)
+            [ -z "$URL" ] && URL="$1"
+            shift ;;
+    esac
+done
+
+[ -z "$URL" ] && { echo -e "${RED}Error: No URL${NC}"; exit 1; }
+
+echo -e "${GREEN}URL: $URL${NC}"
+echo -e "${GREEN}Output: $OUTPUT_DIR/${OUTPUT_NAME}.mp3${NC}"
+echo
+
+# Use system Python + yt-dlp (fastest method)
+if command -v python3 &>/dev/null && python3 -c "import yt_dlp" 2>/dev/null; then
+    python3 -m yt_dlp \
+        -x --audio-format mp3 --audio-quality 0 \
+        --ffmpeg-location "$FFMPEG" \
+        -o "$OUTPUT_DIR/$OUTPUT_NAME.%(ext)s" \
+        "$URL"
+# Fallback: bundled ffmpeg only (download first, convert manually)
+elif command -v curl &>/dev/null && [ -f "$FFMPEG" ]; then
+    echo -e "${BLUE}📥 Downloading audio stream...${NC}"
+    # This requires additional implementation
+    echo -e "${RED}Full standalone requires Python or JS runtime${NC}"
+    echo "Install: pkg install python && pip install yt-dlp"
+    exit 1
+else
+    echo -e "${RED}Error: No downloader available${NC}"
     exit 1
 fi
 
-URL="$1"
-
-echo "📥 Downloading and converting..."
-echo "Please wait..."
-
-# Use yt-dlp with ffmpeg to create actual MP3 file
-# Pass the bundled executables
-"$YT_DLP" -x \
-       --ffmpeg-location "$FFMPEG" \
-       --audio-format mp3 \
-       --audio-quality 0 \
-       --output "$OUTPUT_DIR/%(title)s.%(ext)s" \
-       --js-runtimes deno \
-       --deno-location "$DENO" \
-       "$URL"
-
-if [ $? -eq 0 ]; then
-    echo ""
-    echo "✅ Success! File saved to: $OUTPUT_DIR"
-    echo ""
-    # List the downloaded file
-    echo "📁 Downloaded files:"
-    ls -lh "$OUTPUT_DIR"/*.mp3 2>/dev/null | tail -1
-else
-    echo ""
-    echo "❌ Error occurred during conversion"
-fi
+echo -e "${GREEN}✅ Done! Saved to $OUTPUT_DIR${NC}"
